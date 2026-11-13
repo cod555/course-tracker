@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Course Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#0b0b0d;--card:#141418;--card2:#1b1b21;--line:#26262e;--txt:#e9e9ee;--mut:#9a9aa8;--ok:#7be0a4;--late:#ff8a8a;--warn:#ffc27a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Nunito',system-ui,sans-serif;padding:max(14px,env(safe-area-inset-top)) 14px max(30px,env(safe-area-inset-bottom));max-width:900px;margin-inline:auto;line-height:1.35}
+h1{font-size:22px;margin:6px 0 2px;font-weight:800}
+.sub{color:var(--mut);font-size:13px;margin-bottom:14px}
+.top{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:22px}
+.ring small{font-size:10px;color:var(--mut);font-weight:600}
+.bars{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
+.bar{display:flex;align-items:center;gap:8px;font-size:12px}
+.bar span.n{width:78px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar i{flex:1;height:7px;background:var(--card2);border-radius:9px;overflow:hidden}
+.bar i u{display:block;height:100%;border-radius:9px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;text-align:center}
+.tile b{display:block;font-size:24px}
+.tile span{font-size:11px;color:var(--mut)}
+.tile.late b{color:var(--late)}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 8px}
+.sec h2{font-size:16px;margin:0}
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:7px 12px;font-size:12px;font-weight:700}
+.days{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.day{min-width:150px;flex:1;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px}
+.day.today{border-color:#5b5b70}
+.day h4{margin:0 0 6px;font-size:12px;color:var(--mut);display:flex;justify-content:space-between}
+.pi{display:flex;gap:6px;align-items:flex-start;font-size:12px;padding:5px 0;border-top:1px solid var(--line)}
+.pi .t{flex:1;min-width:0}
+.pi em{font-style:normal;color:var(--mut);display:block;font-size:11px}
+.empty{color:var(--mut);font-size:12px;padding:6px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--c);color:var(--c);background:transparent;border-radius:999px;padding:8px 14px;font-weight:800;font-size:13px}
+.chip.on{background:var(--c);color:#111}
+.no{background:#2a1f12;border:1px solid #5a3d14;border-radius:18px;padding:12px;margin:12px 0}
+.no h3{margin:0 0 6px;font-size:14px;color:#ffb35c}
+.no a{color:#ffb35c}
+.course{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:22px;padding:14px;margin:12px 0}
+.course.hide{display:none}
+.ch{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ch h3{margin:0;font-size:17px;color:var(--c)}
+.meta{font-size:12px;color:var(--mut);margin:4px 0 8px}
+.pbar{height:8px;background:var(--card2);border-radius:9px;overflow:hidden;margin:6px 0 4px}
+.pbar u{display:block;height:100%;background:var(--c)}
+.grp{margin-top:12px}
+.grp h5{margin:0 0 4px;font-size:12px;color:var(--mut);letter-spacing:.3px}
+.it{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:9px 0;border-top:1px solid var(--line)}
+.it input[type=checkbox]{width:20px;height:20px;accent-color:var(--c);margin-top:2px}
+.it.done .tt{text-decoration:line-through;color:var(--mut)}
+.tt{font-weight:700;font-size:14px}
+.ds{font-size:12px;color:var(--mut)}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px;grid-column:2}
+.tag{font-size:11px;border-radius:999px;padding:3px 9px;background:var(--card2);color:var(--mut);font-weight:700;border:1px solid var(--line);text-decoration:none}
+.tag.ok{color:var(--ok)}.tag.late{color:var(--late)}.tag.warn{color:var(--warn)}.tag.org{color:#ffb35c;border-color:#5a3d14;background:#2a1f12}
+input[type=date],input[type=text],input[type=number]{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:4px 8px;font-family:inherit;font-size:12px;color-scheme:dark}
+.add{margin-top:10px}
+.form{display:none;gap:6px;flex-wrap:wrap;margin-top:8px}
+.form.on{display:flex}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#25252d;border:1px solid var(--line);padding:9px 14px;border-radius:14px;font-size:12px;opacity:0;transition:.3s;pointer-events:none}
+.toast.on{opacity:1}
+@media(max-width:520px){.top{flex-direction:column;align-items:stretch}.ring{align-self:center}}
+</style>
+</head>
+<body>
+<h1>Course Tracker</h1>
+<div class="sub" id="sub">Loading…</div>
+<div class="top"><div class="ring" id="ring"></div><div class="bars" id="bars"></div></div>
+<div class="tiles"><div class="tile"><b id="tDue">0</b><span>Due today</span></div><div class="tile"><b id="tHrs">0</b><span>Next 7 days (hours)</span></div><div class="tile late"><b id="tLate">0</b><span>Late</span></div></div>
+<div class="sec"><h2>Next 7 days</h2><button class="btn" id="plBtn">Hide</button></div>
+<div id="planner"><div class="days" id="days"></div></div>
+<div class="sec"><h2>Courses</h2></div>
+<div class="chips" id="chips"></div>
+<div id="noBox"></div>
+<div id="courses"></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const SEED={"courses": [{"id": "mat213", "order": 1, "code": "MAT213", "name": "Calculus", "teacher": "Dr. Zeinab Karaki", "section": "Section H", "textbook": "Lecture PDFs (LEC1–11)", "color": "#8ab4ff"}, {"id": "phy203", "order": 2, "code": "PHY203", "name": "Physics", "teacher": "—", "section": "Section B", "textbook": "Halliday & Resnick, Fundamentals of Physics (10th ed.)", "color": "#ffb38a"}, {"id": "foe200", "order": 3, "code": "FOE200", "name": "Fundamentals of Engineering", "teacher": "—", "section": "Section A (Mon/Wed 12:30)", "textbook": "Class slides and PDFs", "color": "#7be0a4"}, {"id": "eng201", "order": 4, "code": "ENG201", "name": "English Communication Skills I", "teacher": "—", "section": "Section N", "textbook": "Ventures 4 (Student's Book + Workbook)", "color": "#d9a7ff"}, {"id": "gen", "order": 5, "code": "الثقافة العامة", "name": "General Culture", "teacher": "د. مصباح بدران", "section": "Section K", "textbook": "Lesson PDFs (1–3)", "color": "#ffd966"}], "items": [{"course": "foe200", "date": "2026-10-10", "desc": "Functional block diagram (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1QE18AdNTZ2k6SAvrag1_5RNXQQ89zuqx/view", "hours": 3, "id": "foe-a1", "opened": true, "section": "Assignments & Projects", "title": "Assignment 1 – Greenhouse Guardian"}, {"course": "foe200", "date": "2026-10-27", "desc": "In-class activity (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/120NJRHd59AEmpw5G-NUYiBrRa8UWlb7E/view", "hours": 1, "id": "foe-act", "opened": true, "section": "Assignments & Projects", "title": "Design Process in-class activity"}, {"course": "foe200", "date": "2026-10-28", "desc": "AI lab html file (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1LEx7Yelqs3AIKwpT7PIRRJHPlvh9RR1k/view", "hours": 2, "id": "foe-ailab", "opened": true, "section": "Assignments & Projects", "title": "AI Lab (student file)"}, {"course": "foe200", "date": "2026-10-04", "desc": "Slides (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1pGidqL0d8LpRKAIKy1AGL0HAawEbmR0K/view", "hours": 1.5, "id": "foe-ch1", "opened": true, "section": "Chapters", "title": "Chapter 1 – Engineering Profession"}, {"course": "foe200", "date": "2026-10-21", "desc": "Slides (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/13Doki5KDB-yUIr8UQ0qrY5ROtBA7RmV0/view", "hours": 1.5, "id": "foe-ch3", "opened": true, "section": "Chapters", "title": "Chapter 3 – Engineering Design"}, {"classroomUrl": "https://classroom.google.com/c/ODg2MDgxMDQ2NTgz/a/ODk5MTAzOTIxODI4/details", "course": "foe200", "date": "2026-11-15", "desc": "MATLAB Onramp: Course Overview, Commands, MATLAB Desktop and Editor. Send a screenshot. Due Nov 15.", "done": false, "hours": 1.5, "id": "foe-matlab", "opened": true, "section": "Assignments & Projects", "title": "MATLAB Assignment [1]"}, {"course": "foe200", "date": "2026-11-16", "desc": "Deadline is a guess (likely). Please confirm in Classroom.", "done": false, "driveUrl": "https://drive.google.com/file/d/1Wa4aqsQ9d_A2dH9gwTCWMVuK_xbonxFM/view", "hours": 3, "id": "foe-mini", "opened": true, "section": "Assignments & Projects", "title": "Mini Project – Teachable Machine"}, {"course": "gen", "date": "2026-11-14", "desc": "Lesson 1", "done": false, "driveUrl": "https://drive.google.com/file/d/1TByQmvUTik5A87gPtJ-C1m4desk2IGBF/view", "hours": 1, "id": "gen-l1", "opened": true, "section": "Lessons", "title": "الدرس الأول – أدوات المعرفة ودور العقل"}, {"course": "gen", "date": "2026-11-16", "desc": "Lesson 2", "done": false, "driveUrl": "https://drive.google.com/file/d/1NEBVecbjRn5j5cfHXGOR2Hulafswfoj7/view", "hours": 1, "id": "gen-l2", "opened": true, "section": "Lessons", "title": "الدرس الثاني – الكمال الإنساني"}, {"course": "gen", "date": "2026-11-18", "desc": "Lesson 3", "done": false, "driveUrl": "https://drive.google.com/file/d/1pT9xM7uIfbJCgAHpOFLZqzT1a-y5RAl1/view", "hours": 1, "id": "gen-l3", "opened": true, "section": "Lessons", "title": "الدرس الثالث – السعادة"}, {"classroomUrl": "https://classroom.google.com/c/ODg1ODc1MjQ1MDQx", "course": "gen", "date": "2026-11-20", "desc": "Due Nov 20.", "done": false, "hours": 6, "id": "gen-research", "opened": true, "section": "Events & Research", "title": "Research paper (البحث الصفي)"}, {"classroomUrl": "https://classroom.google.com/c/ODg1ODc1MjQ1MDQx", "course": "gen", "date": "2026-11-13", "desc": "Online talk on Google Meet.", "done": false, "hours": 1, "id": "gen-talk", "opened": true, "section": "Events & Research", "title": "Cultural talk – Prof. Talal Atrissi (10 AM, Meet)"}, {"course": "mat213", "date": "2026-10-06", "desc": "Assignment 1 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1osQhMmmY2xb5I1Wa8IzY4oxDaqpCYyz5/view", "hours": 2, "id": "mat-a1", "opened": true, "section": "Assignments & Quizzes", "title": "Assignment 1"}, {"classroomUrl": "https://classroom.google.com/c/ODg2MTQxNTU3ODM5", "course": "mat213", "date": "2026-11-13", "desc": "Due Nov 13 in Pearson MyLab.", "done": false, "hours": 2, "id": "mat-a3", "opened": true, "section": "Assignments & Quizzes", "title": "Assignment 3 (Pearson MyLab)"}, {"course": "mat213", "date": "2026-09-24", "desc": "Lecture 1 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1Wx3hzVGszk0gd-iDi_H6Lwi-H2LT96rT/view", "hours": 1, "id": "mat-lec1", "opened": true, "section": "Lectures", "title": "LEC1"}, {"course": "mat213", "date": "2026-09-26", "desc": "Lecture 2 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1VR6D7Cu7oUoHs1g2VXCVTqaVDnteV3-D/view", "hours": 1, "id": "mat-lec2", "opened": true, "section": "Lectures", "title": "LEC2"}, {"course": "mat213", "date": "2026-09-28", "desc": "Lecture 3 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1DFLAU2_zrH2mQ_j9O_eyHpLi8FkBdOtJ/view", "hours": 1, "id": "mat-lec3", "opened": true, "section": "Lectures", "title": "LEC3"}, {"course": "mat213", "date": "2026-10-01", "desc": "Lecture 4 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1TScb4v6fNfV9KBEiqGsSuaALoMPb9yiy/view", "hours": 1, "id": "mat-lec4", "opened": true, "section": "Lectures", "title": "LEC4"}, {"course": "mat213", "date": "2026-10-04", "desc": "Lecture 5 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1mk0vz8vq5u6cryhvWsRV-rM5SK2Z1Ots/view", "hours": 1, "id": "mat-lec5", "opened": true, "section": "Lectures", "title": "LEC5"}, {"course": "mat213", "date": "2026-10-08", "desc": "Lecture 6 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1we-DNj2F8lz04cIC4Bzr4R-XxoIbJBYU/view", "hours": 1, "id": "mat-lec6", "opened": true, "section": "Lectures", "title": "LEC6"}, {"course": "mat213", "date": "2026-10-12", "desc": "Lecture 7 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1fRAldjc2T5bd6meUniBNhWiV8iOPF8t4/view", "hours": 1, "id": "mat-lec7", "opened": true, "section": "Lectures", "title": "LEC7"}, {"course": "mat213", "date": "2026-10-18", "desc": "Lecture 8 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1uV8EuDJN8b0DYuev3ooAUPJM7WichjTg/view", "hours": 1, "id": "mat-lec8", "opened": true, "section": "Lectures", "title": "LEC8"}, {"course": "mat213", "date": "2026-10-24", "desc": "Lecture 9 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1ssqNQlQsKZokzcQP8geH1iGybQS3Ryl6/view", "hours": 1, "id": "mat-lec9", "opened": true, "section": "Lectures", "title": "LEC9"}, {"course": "mat213", "date": "2026-10-30", "desc": "Quiz is over; solution is in Drive.", "done": true, "driveUrl": "https://drive.google.com/file/d/11Cc4ldefBXcA-uifD--sl4-Vj9H40UmY/view", "hours": 1, "id": "mat-q2", "opened": true, "section": "Assignments & Quizzes", "title": "Quiz 2 (solution posted)"}, {"course": "mat213", "date": "2026-11-14", "desc": "Likely LEC10. Please check in Classroom.", "done": false, "driveUrl": "https://drive.google.com/file/d/1IKhPZXTYN9OUZAPP4U0ILPkUIxrdq6y6/view", "hours": 1.5, "id": "mat-w8", "opened": true, "section": "Lectures", "title": "Week 8 material (likely LEC10)"}, {"course": "mat213", "date": "2026-11-15", "desc": "Likely LEC11. Please check in Classroom.", "done": false, "driveUrl": "https://drive.google.com/file/d/1HHPQor9KjHrkf9Mc_QOsPsIAiSrgMaup/view", "hours": 1.5, "id": "mat-w9", "opened": true, "section": "Lectures", "title": "Week 9 material (likely LEC11)"}, {"course": "phy203", "date": "2026-10-05", "desc": "Assignment 1 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1g4d3EaBfiiPAD6HQhCrU47KKSvWlmgKi/view", "hours": 2, "id": "phy-a1", "opened": true, "section": "Assignments & Exams", "title": "Assignment 1"}, {"course": "phy203", "date": "2026-10-24", "desc": "Assignment 2 (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1SJQ-PHbpym3mlSkV-t1vU9PT3-WP3fbU/view", "hours": 2, "id": "phy-a2", "opened": true, "section": "Assignments & Exams", "title": "Assignment 2"}, {"course": "phy203", "date": "2026-11-12", "desc": "Due Nov 12.", "done": true, "driveUrl": "https://drive.google.com/file/d/1hhfawsU4A-aMikQsgS1M7qC5Bzf2BTWz/view", "hours": 2, "id": "phy-a3", "opened": true, "section": "Assignments & Exams", "title": "Assignment 3"}, {"course": "phy203", "date": "2026-09-20", "desc": "Intro slides (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1sKJpgGLNZOzfO9WIh9i39hSiH56I8uB6/view", "hours": 1, "id": "phy-ch0", "opened": true, "section": "Chapters", "title": "Chapter 0"}, {"course": "phy203", "date": "2026-10-01", "desc": "Chapter 1 slides (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1ygVT2BFwzTWJNuDgpY9DK5IApXPS9UH-/view", "hours": 2, "id": "phy-ch1", "opened": true, "section": "Chapters", "title": "Chapter 1"}, {"course": "phy203", "date": "2026-10-18", "desc": "Energy and Work (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1kwF9FuvPkleKW0TWJ7kMq2kxUyUT4YKy/view", "hours": 2, "id": "phy-ch2", "opened": true, "section": "Chapters", "title": "Chapter 2"}, {"course": "phy203", "date": "2026-11-12", "desc": "Covered in Quiz 2.", "done": false, "driveUrl": "https://drive.google.com/file/d/1-oYQD5AX6KiCiLw_lh5i75TUCnT6l2qc/view", "hours": 2, "id": "phy-ch3", "opened": true, "section": "Chapters", "title": "Chapter 3"}, {"course": "phy203", "date": "2026-11-09", "desc": "Exam 1 is over (paper in Drive).", "done": true, "driveUrl": "https://drive.google.com/file/d/1tjALR78AU6zw_V1RYHhQgRdN8kHJbJqB/view", "hours": 4, "id": "phy-exam1", "opened": true, "section": "Assignments & Exams", "title": "Exam 1"}, {"course": "phy203", "date": "2026-10-03", "desc": "Practice problems (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1TQcRpGRkWJ_0CaJQdakRlZkCJS12FYlL/view", "hours": 1.5, "id": "phy-ps1", "opened": true, "section": "Problem Sessions", "title": "Problem Session 1"}, {"course": "phy203", "date": "2026-10-30", "desc": "Practice problems (assumed done)", "done": true, "driveUrl": "https://drive.google.com/file/d/1kY5EQu56QOCGOoOxcXpzXIH7V_-AyjPk/view", "hours": 1.5, "id": "phy-ps2", "opened": true, "section": "Problem Sessions", "title": "Problem Session 2"}, {"classroomUrl": "https://classroom.google.com/c/ODg1MzI4MTUxNjEw", "course": "phy203", "date": "2026-11-12", "desc": "Quiz on Nov 12.", "done": false, "hours": 2, "id": "phy-q2", "opened": true, "section": "Assignments & Exams", "title": "Quiz 2 (Ch 2 & 3, Energy and Work)"}]};
+let LOCAL=false;
+
+let db=null,courses=[],items=[],selected=null,planHidden=false,ready=false;
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const todayStr=()=>iso(new Date());
+const dayDiff=(a,b)=>Math.round((new Date(a+'T12:00')-new Date(b+'T12:00'))/864e5);
+const addDays=(s,n)=>{const d=new Date(s+'T12:00');d.setDate(d.getDate()+n);return iso(d)};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600)}
+try{planHidden=localStorage.getItem('planHidden')==='1'}catch(e){}
+
+async function cal(tool,args){
+  if(LOCAL) return false;
+  try{
+    const m=await claude.use('mcp'); if(!m) return false;
+    if(typeof m.callTool==='function'){await m.callTool('Google Calendar',tool,args);return true}
+    if(typeof m.server==='function'){const s=await m.server('Google Calendar');await s[tool](args);return true}
+  }catch(e){console.warn('calendar',e)}
+  return false;
+}
+async function save(id,fields){
+  const it=items.find(x=>x.id===id); if(it) Object.assign(it,fields);
+  render();
+  if(LOCAL){persist();return}
+  if(!db) return;
+  try{await db.doc('items/'+id).update(fields)}catch(e){try{await db.doc('items/'+id).set(fields,{merge:true})}catch(e2){console.warn(e2);toast('Could not save')}}
+}
+function cname(it){const c=courses.find(c=>c.id===it.course);return (c?c.code:'')+' – '+it.title}
+async function onTick(id,val){
+  const it=items.find(x=>x.id===id); if(!it) return;
+  await save(id,{done:val,doneAt:val?new Date().toISOString():null});
+  if(it.eventId){
+    const args={eventId:it.eventId,summary:(val?'✅ ':'')+cname(it)};
+    if(val) args.overrideReminders=[]; else if(it.date>todayStr()) args.overrideReminders=[{method:'popup',minutes:240}];
+    const ok=await cal('update_event',args);
+    if(!ok&&!LOCAL){await save(id,{calSync:'pending'});toast('Saved. Calendar will sync at 7:15 AM')}
+  }
+}
+async function onDate(id,d){
+  if(!d) return;
+  const it=items.find(x=>x.id===id); if(!it) return;
+  await save(id,{date:d});
+  if(it.eventId){
+    const ok=await cal('update_event',{eventId:it.eventId,allDay:true,startTime:d+'T00:00:00',endTime:addDays(d,1)+'T00:00:00',overrideReminders:it.done?[]:[{method:'popup',minutes:240}]});
+    if(ok) toast('Deadline and calendar updated'); else if(LOCAL) toast('Deadline saved'); else {await save(id,{calSync:'pending'});toast('Saved. Calendar will sync at 7:15 AM')}
+  } else toast('Deadline saved');
+}
+async function onAdd(cid){
+  const f=document.getElementById('f-'+cid);
+  const title=f.querySelector('.ft').value.trim(); const date=f.querySelector('.fd').value;
+  const hours=parseFloat(f.querySelector('.fh').value)||1; const section=f.querySelector('.fs').value.trim()||'Extra';
+  if(!title||!date){toast('Add a title and a date');return}
+  const id='x'+Date.now().toString(36);
+  const it={id,course:cid,section,title,desc:'Added by you',hours,date,done:false,kind:'extra',opened:'unknown',eventId:null,created:new Date().toISOString()};
+  items.push(it); render();
+  if(LOCAL){persist();toast('Item added');return}
+  if(db){try{await db.doc('items/'+id).set(it)}catch(e){toast('Could not save')}}
+  const c=courses.find(c=>c.id===cid);
+  try{
+    const m=await claude.use('mcp');
+    if(m){const args={summary:c.code+' – '+title,allDay:true,startTime:date+'T00:00:00',endTime:addDays(date,1)+'T00:00:00',availability:'AVAILABILITY_FREE',overrideReminders:[{method:'popup',minutes:240}]};
+      let r; if(typeof m.callTool==='function') r=await m.callTool('Google Calendar','create_event',args); else {const s=await m.server('Google Calendar'); r=await s.create_event(args)}
+      const p=(r&&(r.payload||r))||{}; const eid=p.id||(p.structuredContent&&p.structuredContent.id);
+      if(eid) await save(id,{eventId:eid}); else await save(id,{calSync:'pending'});
+    }
+  }catch(e){await save(id,{calSync:'pending'})}
+  toast('Item added');
+}
+function badge(it){
+  if(it.done) return '<span class="tag ok">Done ✓</span>';
+  const d=dayDiff(it.date,todayStr());
+  if(d<0) return '<span class="tag late">Late '+(-d)+'d</span>';
+  if(d===0) return '<span class="tag warn">Due today</span>';
+  return '<span class="tag">'+d+(d===1?' day left':' days left')+'</span>';
+}
+function stats(list){const n=list.length,d=list.filter(x=>x.done).length;return{n,d,p:n?Math.round(d/n*100):0,hrs:list.filter(x=>!x.done).reduce((a,x)=>a+(+x.hours||0),0)}}
+function render(){
+  const t=todayStr(); const all=items;
+  const s=stats(all);
+  $('#sub').textContent=courses.length+' courses · '+s.n+' items · today '+t;
+  const R=44,C=2*Math.PI*R;
+  $('#ring').innerHTML='<svg width="104" height="104"><circle cx="52" cy="52" r="'+R+'" fill="none" stroke="#202028" stroke-width="10"/><circle cx="52" cy="52" r="'+R+'" fill="none" stroke="#7be0a4" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-s.p/100))+'"/></svg><b>'+s.p+'%<small>semester</small></b>';
+  $('#bars').innerHTML=courses.map(c=>{const k=stats(all.filter(i=>i.course===c.id));return '<div class="bar"><span class="n">'+esc(c.code)+'</span><i><u style="width:'+k.p+'%;background:'+c.color+'"></u></i><span>'+k.p+'%</span></div>'}).join('');
+  const open=all.filter(i=>!i.done);
+  $('#tDue').textContent=open.filter(i=>i.date===t).length;
+  $('#tLate').textContent=open.filter(i=>i.date<t).length;
+  const end=addDays(t,6);
+  const wk=open.filter(i=>i.date>=t&&i.date<=end);
+  $('#tHrs').textContent=Math.round(wk.reduce((a,i)=>a+(+i.hours||0),0)*10)/10;
+  // planner
+  $('#planner').style.display=planHidden?'none':'';
+  $('#plBtn').textContent=planHidden?'Show':'Hide';
+  let dh='';
+  for(let k=0;k<7;k++){
+    const d=addDays(t,k); const dd=new Date(d+'T12:00');
+    let list=all.filter(i=>i.date===d&&(k>0?true:true));
+    if(k===0) list=list.concat(open.filter(i=>i.date<t));
+    const hrs=list.filter(i=>!i.done).reduce((a,i)=>a+(+i.hours||0),0);
+    dh+='<div class="day'+(k===0?' today':'')+'"><h4><span>'+dd.toLocaleDateString('en',{weekday:'short',day:'numeric',month:'short'})+'</span><span>'+(hrs?hrs+'h':'')+'</span></h4>'+
+      (list.length?list.map(i=>{const c=courses.find(c=>c.id===i.course)||{};return '<div class="pi"><input type="checkbox" '+(i.done?'checked':'')+' onchange="onTick(\''+i.id+'\',this.checked)" style="accent-color:'+c.color+'"><div class="t" style="'+(i.done?'text-decoration:line-through;opacity:.5':'')+'"><b style="color:'+c.color+'">'+esc(c.code)+'</b> '+esc(i.title)+'<em>'+i.hours+'h'+(i.date<t?' · late':'')+'</em></div></div>'}).join(''):'<div class="empty">Free day</div>')+'</div>';
+  }
+  $('#days').innerHTML=dh;
+  // chips
+  $('#chips').innerHTML=courses.map(c=>'<button class="chip'+(selected===c.id?' on':'')+'" style="--c:'+c.color+'" onclick="pick(\''+c.id+'\')">'+esc(c.code)+'</button>').join('');
+  // not opened
+  const no=all.filter(i=>i.opened===false&&!i.done);
+  $('#noBox').innerHTML=no.length?'<div class="no"><h3>Not opened yet ('+no.length+')</h3>'+no.map(i=>'<div class="ds">'+esc(cname(i))+' — <a href="'+esc(i.classroomUrl)+'" target="_blank">Open in Classroom ↗</a></div>').join('')+'<div class="ds" style="margin-top:6px">Open each once in Classroom. It will then appear in your Drive.</div></div>':'';
+  // courses
+  $('#courses').innerHTML=courses.map(c=>{
+    const list=all.filter(i=>i.course===c.id); const k=stats(list);
+    const secs=[...new Set(list.map(i=>i.section))];
+    return '<div class="course'+(selected&&selected!==c.id?' hide':'')+'" style="--c:'+c.color+'"><div class="ch"><h3>'+esc(c.code)+' · '+esc(c.name)+'</h3><span class="tag">'+k.p+'% · '+k.hrs+'h left</span></div>'+
+      '<div class="meta">'+esc(c.teacher)+' · '+esc(c.section)+' · Book: '+esc(c.textbook)+'</div><div class="pbar"><u style="width:'+k.p+'%"></u></div>'+
+      secs.map(sc=>'<div class="grp"><h5>'+esc(sc.toUpperCase())+'</h5>'+list.filter(i=>i.section===sc).sort((a,b)=>a.date<b.date?-1:1).map(itemHtml).join('')+'</div>').join('')+
+      '<div class="add"><button class="btn" onclick="document.getElementById(\'f-'+c.id+'\').classList.toggle(\'on\')">+ Add item</button><div class="form" id="f-'+c.id+'"><input class="ft" type="text" placeholder="Title"><input class="fs" type="text" placeholder="Section"><input class="fd" type="date" value="'+addDays(t,2)+'"><input class="fh" type="number" step="0.5" min="0.5" value="1" style="width:64px"><button class="btn" onclick="onAdd(\''+c.id+'\')">Save</button></div></div></div>';
+  }).join('');
+}
+function itemHtml(i){
+  let file='';
+  if(i.driveUrl) file='<a class="tag" href="'+esc(i.driveUrl)+'" target="_blank">Open file ↗</a><span class="tag ok">Opened</span>';
+  else if(i.opened===false) file='<span class="tag org">Not opened yet</span><a class="tag org" href="'+esc(i.classroomUrl)+'" target="_blank">Open in Classroom ↗</a>';
+  else if(i.classroomUrl) file='<a class="tag" href="'+esc(i.classroomUrl)+'" target="_blank">Classroom ↗</a>';
+  return '<div class="it'+(i.done?' done':'')+'"><input type="checkbox" '+(i.done?'checked':'')+' onchange="onTick(\''+i.id+'\',this.checked)"><div><div class="tt">'+esc(i.title)+'</div><div class="ds">'+esc(i.desc||'')+'</div></div>'+
+    '<div class="row">'+badge(i)+'<span class="tag">⏱ '+i.hours+'h</span><input type="date" value="'+esc(i.date)+'" onchange="onDate(\''+i.id+'\',this.value)">'+(i.eventId?'<span class="tag ok">In calendar</span>':'')+file+'</div></div>';
+}
+function pick(id){selected=selected===id?null:id;render()}
+$('#plBtn').onclick=()=>{planHidden=!planHidden;try{localStorage.setItem('planHidden',planHidden?'1':'0')}catch(e){}
+  if(db){try{db.doc('meta/ui').set({planHidden},{merge:true})}catch(e){}}render()};
+function persist(){try{localStorage.setItem('ct_items',JSON.stringify(items))}catch(e){}}
+const snapList=s=>{const arr=s.docs||s;const out=[];(arr.forEach?arr:[]).forEach(d=>out.push(Object.assign({id:d.id},d.data?d.data():d)));return out};
+function startLocal(){
+  LOCAL=true; courses=SEED.courses;
+  let saved=null; try{saved=JSON.parse(localStorage.getItem('ct_items')||'null')}catch(e){}
+  if(saved&&saved.length){const ids=new Set(saved.map(x=>x.id));items=saved.concat(SEED.items.filter(x=>!ids.has(x.id)))}
+  else items=JSON.parse(JSON.stringify(SEED.items));
+  persist(); render();
+}
+(async()=>{
+  if(!window.claude||typeof window.claude.use!=='function'){startLocal();return}
+  render();
+  try{
+    db=await claude.use('db');
+    if(!db){startLocal();return}
+    const timer=setTimeout(()=>{if(!ready)$('#sub').textContent='Still loading… (no data yet)'},10000);
+    db.collection('courses').onSnapshot(s=>{courses=snapList(s).sort((a,b)=>(a.order||0)-(b.order||0));ready=true;clearTimeout(timer);render()});
+    db.collection('items').onSnapshot(s=>{items=snapList(s);render()});
+    db.doc('meta/ui').onSnapshot(s=>{const v=s.data?s.data():s;if(v&&typeof v.planHidden==='boolean'){planHidden=v.planHidden;render()}});
+  }catch(e){console.warn(e);$('#sub').textContent='Could not load data'}
+})();
+</script>
+</body>
+</html>
